@@ -8,7 +8,7 @@ ASFLAGS=-m32
 OBJECTS=boot/grub/boot.o kernel/io.o kernel/string.o kernel/tty.o kernel/cpu/gdt.o \
 				kernel/cpu/gdt_flush.o kernel/cpu/idt.o kernel/cpu/isr.o kernel/cpu/irq.o \
 				kernel/cpu/interrupt.o kernel/stdlib.o kernel/drivers/mouse/ps2mouse.o \
-				kernel/drivers/kbd/ps2keyboard.o kernel/drivers/ata/ata.o kernel/init/main.o 
+				kernel/drivers/kbd/ps2keyboard.o kernel/drivers/ata/ide.o kernel/init/main.o 
 
 %.o: %.S
 	$(AS) $(ASFLAGS) -c $^ -o $@
