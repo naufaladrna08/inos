@@ -131,6 +131,6 @@ u8 ide_write(u8 channel, u8 reg, u8 data);
 u8 ide_read_buffer(u8 channel, u8 reg, u32 buffer, u32 quads);
 u8 ide_polling(u8 channel, u32 advanced_check);
 u8 ide_print_error(u32 drive, u8 err);
-void ide_initialize(u32, u32 BAR1, u32 BAR2, u32 BAR3,u32 BAR4);
+void ide_initialize(u32 BAR0, u32 BAR1, u32 BAR2, u32 BAR3,u32 BAR4);
 
 #endif /* ata.h */

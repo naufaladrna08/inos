@@ -63,7 +63,7 @@ int kernel_init(unsigned long magic, unsigned long addr) {
 	mouse_install();
 	keyboard_install();
 
-
+	ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
 }
 
 void reboot() {

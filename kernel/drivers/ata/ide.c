@@ -1,12 +1,19 @@
 #include <drivers/ata/ata.h>
 
-/* Sleep Utilities  */
+/* Utilities  */
 u32 jiffies = 0;
 u16 hz      = 0;
 
 void sleep(int sec) {
   u32 end = jiffies + sec * hz;
   while(jiffies < end);
+}
+
+static __inline void insl(int port, void *addr, int cnt) {
+	__asm__ volatile("cld\n\trepne\n\tinsw"			:
+			 "=D" (addr), "=c" (cnt)		:
+			 "d" (port), "0" (addr), "1" (cnt)	:
+			 "memory", "cc");
 }
 
 /* Buffer untuk membaca identification space */
@@ -65,13 +72,13 @@ u8 ide_read_buffer(u8 channel, u8 reg, u32 buffer, u32 quads) {
   asm("pushw %es; movw %ds, %ax; movw %ax, %es");
 
   if (reg < 0x08) {
-    insl(channels[channel].base  + reg - 0x00, buffer, quads);
+    insl(channels[channel].base  + reg - 0x00, &buffer, quads);
   } else if (reg < 0x0C) {
-    insl(channels[channel].base  + reg - 0x06, buffer, quads);
+    insl(channels[channel].base  + reg - 0x06, &buffer, quads);
   } else if (reg < 0x0E) {
-    insl(channels[channel].ctrl  + reg - 0x0A, buffer, quads);
+    insl(channels[channel].ctrl  + reg - 0x0A, &buffer, quads);
   } else if (reg < 0x16) {
-    insl(channels[channel].bmide + reg - 0x0E, buffer, quads);
+    insl(channels[channel].bmide + reg - 0x0E, &buffer, quads);
   }
 
   asm("popw %es;");

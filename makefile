@@ -2,7 +2,7 @@ CC=gcc
 AS=gcc
 LD=ld -m elf_i386
 
-CCFLAGS=-I kernel/include -masm=intel -fno-pie -ffreestanding -m32
+CCFLAGS=-I kernel/include -masm=intel -fno-pie -ffreestanding -m32 
 ASFLAGS=-m32
 
 OBJECTS=boot/grub/boot.o kernel/io.o kernel/string.o kernel/tty.o kernel/cpu/gdt.o \
