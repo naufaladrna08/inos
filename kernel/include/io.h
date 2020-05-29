@@ -3,6 +3,8 @@
 #include <types.h>
 
 extern u8 inb(u16 _port);
+extern u8 inw(u16 _port);
 extern void outb(u16 _port, u8 _data);
+extern void outw(u16 _port, u16 _data);
 
 #endif
