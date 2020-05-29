@@ -25,3 +25,10 @@ void outw(u16 _port, u16 _data) {
 	__asm__("mov ax, %0" : : "g" (_data));
 	__asm__("outw dx, ax");
 }
+
+static __inline void insl(int port, void *addr, int cnt) {
+	__asm __volatile("cld\n\trepne\n\tinsl"			:
+			 "=D" (addr), "=c" (cnt)		:
+			 "d" (port), "0" (addr), "1" (cnt)	:
+			 "memory", "cc");
+}
