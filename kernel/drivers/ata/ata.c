@@ -1,4 +1,4 @@
-#include <drivers/ata.h>
+#include <drivers/ata/ata.h>
 
 void ata_init(char master, u16 port_base) {
   /* I/O Registers */
