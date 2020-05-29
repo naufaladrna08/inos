@@ -4,6 +4,7 @@
 #include <cpu/gdt.h>
 #include <drivers/mouse/ps2mouse.h>
 #include <drivers/kbd/ps2keyboard.h>
+#include <drivers/ata/ata.h>
 #include <multiboot.h>
 #include <tty.h>
 #include <string.h>
@@ -61,6 +62,8 @@ int kernel_init(unsigned long magic, unsigned long addr) {
 	printf("\nLoading drivers...");
 	mouse_install();
 	keyboard_install();
+
+
 }
 
 void reboot() {
@@ -82,8 +85,6 @@ void cmd_input(char *cmd) {
 	} else {
 		printf("\nUnknown command: %s\n", cmd);
 	}
-
-    printf("\n > ");
 }
 
 
