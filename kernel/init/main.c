@@ -19,10 +19,10 @@ int kernel_init(unsigned long magic, unsigned long addr) {
   tty_init(0, 0, 0x0F);
 
   /* Initialize the core modules */
-	gdt_install();
-	isr_install();
-	irq_install();
-	idt_install();
+  gdt_install();
+  isr_install();
+  irq_install();
+  idt_install();
 
   multiboot_info_t *mbi;
   printf("Multiboot info: \n");
@@ -58,81 +58,81 @@ int kernel_init(unsigned long magic, unsigned long addr) {
     printf("This kernel is run in VBE mode.");
   }
 
-	/* input devices */
-	printf("\nLoading drivers...");
-	mouse_install();
-	keyboard_install();
+  /* input devices */
+  printf("\nLoading drivers...");
+  mouse_install();
+  keyboard_install();
 
-	ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
+  ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
 }
 
 void reboot() {
-	u8 good = 0x02;
-	while (good & 0x02)
-			good = inb(0x64);
-	outb(0x64, 0xFE);
-	asm("hlt");
+  u8 good = 0x02;
+  while (good & 0x02)
+      good = inb(0x64);
+  outb(0x64, 0xFE);
+  asm("hlt");
 }
 
 void cmd_input(char *cmd) {
-	if (strcmp(cmd, "end") == 0) {
-  	printf(" Stopping the CPU. Bye!\n");
+  if (strcmp(cmd, "end") == 0) {
+    printf(" Stopping the CPU. Bye!\n");
     asm volatile("hlt");
   } else if (strcmp(cmd, "reboot") == 0) {
-		reboot();
-	} else if (strcmp(cmd, "clear") == 0) {
-		tty_clean();
-	} else {
-		printf("\nUnknown command: %s\n", cmd);
-	}
+    reboot();
+  } else if (strcmp(cmd, "clear") == 0) {
+    tty_clean();
+  } else {
+    printf("\nUnknown command: %s\n", cmd);
+  }
 }
 
 
 void printf(const char* fmt, ...) {
-	char** arg = (char **) &fmt;
-	int c;
-	char buf[20];
+  char** arg = (char **) &fmt;
+  int c;
+  char buf[20];
 
-	arg++;
-	while ((c = *fmt++) != 0) {
-		if (c != '%') {
-			tty_putch(c);
-		} else {
-			char *p, *p2;
-			int pad0 = 0, pad = 0;
-			
-			c = *fmt++;
-			if (c == 0) {
-				pad0 = 1;
-				c = *fmt++;
-			}
+  arg++;
+  while ((c = *fmt++) != 0) {
+    if (c != '%') {
+      tty_putch(c);
+    } else {
+      char *p, *p2;
+      int pad0 = 0, pad = 0;
+      
+      c = *fmt++;
+      if (c == 0) {
+        pad0 = 1;
+        c = *fmt++;
+      }
 
-			switch (c) {
-				case 'd':
-				case 'u':
-				case 'x':
-					itoa(buf, c, *((int *) arg++));
-					p = buf;
-					goto string;
-					break;
+      switch (c) {
+        case 'd':
+        case 'u':
+        case 'x':
+          itoa(buf, c, *((int *) arg++));
+          p = buf;
+          goto string;
+          break;
 
-				case 's':
-					p = *arg++;
-					if (! p)
-						p = "(null)";
+        case 's':
+          p = *arg++;
+          if (! p)
+            p = "(null)";
 
-				string:
-					for (p2 = p; *p2; p2++);
-					for (; p2 < p + pad; p2++)
-						tty_putch(pad0 ? '0' : ' ');
-					while (*p)
-						tty_putch(*p++);
-					break;
+        string:
+          for (p2 = p; *p2; p2++);
+          for (; p2 < p + pad; p2++)
+            tty_putch(pad0 ? '0' : ' ');
+          while (*p)
+            tty_putch(*p++);
+          break;
 
-				default:
-					tty_putch(*((int *) arg++));
-					break;
-			}
-		}
-	}
+        default:
+          tty_putch(*((int *) arg++));
+          break;
+      }
+    }
+  }
 }
