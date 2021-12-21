@@ -1,0 +1,13 @@
+.container {
+	width: 60%;
+	margin: auto;
+	box-sizing: border-box;
+}
+
+header {
+	text-align: center;
+}
+
+.container p {
+	text-align: justify;
+}

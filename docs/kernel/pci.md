@@ -1,7 +1,4 @@
-# PCI
-# Sumber: wiki.osdev.org
-# Diterjemahkan oleh Naufal Adriansyah
-
+# Peripheral Component Interconnect
 ## PCI bus 
 
 PCI bus didefinisikan untuk membangun kinerja tinggi 
@@ -77,11 +74,11 @@ dari 64 kata 32-bit. Jika Anda tidak membutuhkan semua
 perangkat lunak dengan menyelaraskan alamat, diikuti 
 dengan menutupi dan menggeser jawabannya.
 
-|===========|==========|===========|=================|==============|================|
-| Bit Nyala | Tersedia | Nomor Bus | Nomor Perangkat | Nomor Fungsi | Letak Register | <= Isi
-|===========|==========|===========|=================|==============|================|
-|     31    |  30-24   |   23-16   |      15-11      |     10-8     |       7-0      | <= Bit
-|===========|==========|===========|=================|==============|================|
+|===========|==========|===========|=================|==============|================|  
+| Bit Nyala | Tersedia | Nomor Bus | Nomor Perangkat | Nomor Fungsi | Letak Register | <= Isi  
+|===========|==========|===========|=================|==============|================|  
+|     31    |  30-24   |   23-16   |      15-11      |     10-8     |       7-0      | <= Bit  
+|===========|==========|===========|=================|==============|================|  
 
 Register Offset harus mengarah ke DWORD yang berurutan, 
 yaitu. bit 1: 0 selalu 0b00 (mereka masih bagian dari 
@@ -92,3 +89,5 @@ yang tidak ada, jembatan host akan menyelesaikan akses
 tanpa kesalahan, menghapus semua data saat menulis dan 
 mengembalikan semua data saat dibaca. Segmen kode berikut 
 menggambarkan pembacaan perangkat yang tidak ada.
+
+#### Sumber: wiki.osdev.org, Diterjemahkan oleh Naufal Adriansyah
