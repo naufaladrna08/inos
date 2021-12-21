@@ -9,6 +9,7 @@
 #include <tty.h>
 #include <string.h>
 #include <kernel.h>
+#include <cpu/reboot.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -16,6 +17,7 @@ void printf(const char* fmt, ...);
 
 /* print the multiboot structure */
 int kernel_init(unsigned long magic, unsigned long addr) {
+  
   tty_init(0, 0, 0x0F);
 
   /* Initialize the core modules */
@@ -62,22 +64,12 @@ int kernel_init(unsigned long magic, unsigned long addr) {
   printf("\nLoading drivers...");
   mouse_install();
   keyboard_install();
-
-  ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
 }
 
-void reboot() {
-  u8 good = 0x02;
-  while (good & 0x02)
-      good = inb(0x64);
-  outb(0x64, 0xFE);
-  asm("hlt");
-}
 
 void cmd_input(char *cmd) {
   if (strcmp(cmd, "end") == 0) {
-    printf(" Stopping the CPU. Bye!\n");
-    asm volatile("hlt");
+    reboot();
   } else if (strcmp(cmd, "reboot") == 0) {
     reboot();
   } else if (strcmp(cmd, "clear") == 0) {
