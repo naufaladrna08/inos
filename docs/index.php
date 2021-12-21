@@ -7,15 +7,12 @@ $page = ""; $css = ""; $head = "";
 if (isset($_GET['p'])) {
 	$page = 'kernel/' . $_GET['p'] . '.md';
 	$css  = 'style.css';
-	$head = require_once('html/header-kernel.php');
+	$head = 'html/header-kernel.php';
 } else {
 	$page = 'index.md';
 	$css  = 'home.css';
-	$head = require_once('html/header-home.php');
+	$head = 'html/header-home.php';
 }
-
-$content = $pd->text(file_get_contents($page));
-
 ?>
 
 <html>
@@ -33,10 +30,10 @@ $content = $pd->text(file_get_contents($page));
 	}
 </style>
 <body>
-	<?= $head ?>
+	<?php require_once($head) ?>
 
 	<div class="container">
-		<?= $content ?>
+		<?= $pd->text(file_get_contents($page)) ?>
 	</div>
 	
 	<br><br>

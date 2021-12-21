@@ -2,24 +2,23 @@
 # Next and Previous Page
 $files = scandir('kernel/');
 $next  = ""; $prev = "";
+array_shift($files);
+array_shift($files);
 
 for ($i = 0; $i < count($files); $i++) 	{
 	if (($_GET['p'] . '.md') == $files[$i]) {
-    $prev = str_replace('.md', '', $files[$i - 1]);
-    $next = str_replace('.md', '', $files[$i + 1]);
-
-		if ($files[$i - 1] == '..') {
+		if ($i == 0) {
 			$prev = str_replace('.md', '', $files[$i]);
 		} else {
 			$prev = str_replace('.md', '', $files[$i - 1]);
 		}
 
-		if ($files[$i + 1] == '') {
+		if ($i == count($files) - 1) {
 			$next = str_replace('.md', '', $files[$i]);
 		} else {
 			$next = str_replace('.md', '', $files[$i + 1]);
 		}
-	}
+	}	
 }
 ?>
 
