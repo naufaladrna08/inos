@@ -3,7 +3,6 @@
 #include <system.h>
 
 typedef void (*isr_t)(struct regs);
-isr_t interrupt_handlers[256];
 
 /* Implemented in isr.c */
 extern void isr_install();

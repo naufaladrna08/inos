@@ -4,9 +4,6 @@
 #include <io.h>
 #include <string.h>
 
-int x, y;
-const u8 rows, cols, depth;
-
 void tty_clearline(u8 from, u8 to);
 void tty_clean();
 void tty_refresh();

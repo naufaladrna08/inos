@@ -31,9 +31,10 @@
 
 
 #include <tty.h>
-
-const u8 rows = 80, cols = 25, depth = 2;
-u8 tty_color;
+static int x, y;
+static const u8 rows, cols, depth;
+static const u8 rows = 80, cols = 25, depth = 2;
+static u8 tty_color;
 
 void tty_clearline(u8 from, u8 to) {
 	u16 i = rows * from * depth;
