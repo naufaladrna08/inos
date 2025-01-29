@@ -4,8 +4,11 @@
 #include <tty.h>
 #include <system.h>
 #include <cpu/irq.h>
+#include <types.h>
 
-static void mouse_handler(struct regs *r);
-void mouse_install();
+static void wait_controller_ready();
+static int wait_controller_response();
+static void mouse_handler();
+int mouse_install();
 
 #endif

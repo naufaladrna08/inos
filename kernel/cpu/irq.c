@@ -81,6 +81,7 @@ void irq_remap() {
 	outb(0xA1, 0x01);
 	outb(0x21, 0x00);
 	outb(0xA1, 0x00);
+
 	tty_write("[ OK ]\n");
 }
 

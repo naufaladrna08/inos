@@ -5,99 +5,95 @@
 #define IRQ_OFF { asm volatile ("cli"); }
 #define IRQ_RES { asm volatile ("sti"); }
 
-char buff[3];
-unsigned int m_offset = 0;
-u8 buttons;
-
-void wait(char a_type) {
-	int timeout = 100000;
-	if (!a_type) {
-		while (--timeout) {
-			if ((inb(CMDPORT) & 0x01) == 1) {
-				return;
-			}
-		}
-		tty_write("mouse timeout");
-		return;
-	} else {
-		while (--timeout) {
-			if (!((inb(CMDPORT) & 0x02))) {
-				return;
-			}
-		}
-		tty_write("mouse timeout");
-		return;
-	}
-}
-
+static s8 mouse_x = 0;
+static s8 mouse_y = 0;
+static u8 mouse_buttons = 0;
+static u8 mouse_cycle = 0;
 
 #define KEY_DEVICE    0x60
 #define KEY_PENDING   0x64
 
-static char key_buffer[256];
-
-void mouse_handler(struct regs *r) {
-  unsigned char status = inb(CMDPORT);
-  buff[m_offset] = inb(DTAPORT);
-
-  m_offset = (m_offset + 1) % 3;
-  static char mx = 80 / 2, my = 25 / 2;
-
-
-  if (m_offset == 0) {
-    static unsigned short* VideoMemory = (unsigned short*)0xb8000;
-    VideoMemory[80*my+mx] = (VideoMemory[80*my+mx] & 0x0F00) << 4
-                          | (VideoMemory[80*my+mx] & 0xF000) >> 4
-                          | (VideoMemory[80*my+mx] & 0x00FF);
-
-    mx += buff[1];
-    if (mx >= 80) mx = 79;
-    if (mx < 0) mx = 0;
-    
-    my -= buff[2];
-    if (my >= 25) my = 24;
-    if (my < 0) my = 0;
-
-    VideoMemory[80*my+mx] = (VideoMemory[80*my+mx] & 0x0F00) << 4
-                          | (VideoMemory[80*my+mx] & 0xF000) >> 4
-                          | (VideoMemory[80*my+mx] & 0x00FF);
-  } 
-
-  irq_ack(12);
+void wait_controller_ready() {
+  /* wait until the buffer is empty */
+  while (inb(CMDPORT) & 0x02);
 }
 
-void mouse_install() {
-  char status;
-  m_offset = 0;
-  buttons  = 0;
-  tty_write("\nInitializing PS/2 Mouse Driver... ");
+int wait_controller_response() {
+  int timeout = 1000;
+  while (timeout-- && !(inb(CMDPORT) & 0x01));
+  return timeout > 0;
+}
 
-  unsigned short* VideoMemory = (unsigned short*)0xb8000;
-  VideoMemory[80*12+40] = (VideoMemory[80*12+40] & 0x0F00) << 4
-                        | (VideoMemory[80*12+40] & 0xF000) >> 4
-                        | (VideoMemory[80*12+40] & 0x00FF);
+void mouse_handler() {
+  static char packet[3];
+  u8 status = inb(CMDPORT);
+  if (!(status & 0x20)) return;
 
-  /*
-   * beritahu kontroler untuk mengalamatkan mouse dan
-   * tulis mouse command code ke data port kontroller. 
-   */
+  u8 data = inb(DTAPORT);
+  switch (mouse_cycle) {
+    case 0:
+      packet[0] = data;
+      if (!(data & 0x08)) return; // Bad first byte
+      mouse_cycle++;
+      break;
+    case 1:
+      packet[1] = data;
+      mouse_cycle++;
+      break;
+    case 2:
+      packet[2] = data;
+      
+      /* process packet */
+      mouse_buttons = packet[0] & 0x07;
+      mouse_x = packet[1];
+      mouse_y = packet[2];
+
+      /* reset cycle */
+      mouse_cycle = 0;
+      break;
+  }
+  
+}
+
+int mouse_install() {
+  u8 status;
+
+  /* Disable Interrupt */
   IRQ_OFF;
+
+  /* Enable Auxilary Device */
+  wait_controller_ready();
   outb(CMDPORT, 0xA8);
-  outb(CMDPORT, 0x20);
-    
-  status = inb(DTAPORT) | 2;
-  
-  outb(CMDPORT, 0x60);
-  outb(DTAPORT, status);
-  
-  // CMD=64
-  outb(CMDPORT, 0xD4);
-  outb(DTAPORT, 0xF4);
 
-  inb(DTAPORT);
-
+  /* Renable Interrupt */
   IRQ_RES;
-  irq_install_handler(12, mouse_handler);
 
-  tty_write("[ OK ]\n");
+  /* Get current configuration */
+  wait_controller_ready();
+  outb(CMDPORT, 0x20);
+  if (!wait_controller_response()) return 0;
+  status = inb(DTAPORT) | 0x02;
+
+  /* Set configuration */
+  wait_controller_ready();
+  outb(CMDPORT, 0x60);
+  wait_controller_ready();
+  outb(CMDPORT, status);
+
+  /* Set default settings */
+  wait_controller_ready();
+  outb(CMDPORT, 0xD4);
+  wait_controller_ready();
+  outb(CMDPORT, 0xF6);
+  if (!wait_controller_response() || inb(DTAPORT) != 0xFA) return 0;
+
+  /* Enable data reporting */
+  wait_controller_ready();
+  outb(CMDPORT, 0xD4);
+  wait_controller_ready();
+  outb(CMDPORT, 0xF4);
+  if (!wait_controller_response() || inb(DTAPORT) != 0xFA) return 0;
+
+  irq_install_handler(12, mouse_handler);
+  return 1;
 }
