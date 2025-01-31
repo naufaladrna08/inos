@@ -8,7 +8,7 @@
 
 static void wait_controller_ready();
 static int wait_controller_response();
-static void mouse_handler();
+static void mouse_handler(struct regs* r);
 int mouse_install();
 
 #endif

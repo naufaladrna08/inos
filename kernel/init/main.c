@@ -12,7 +12,6 @@
 // #include <cpu/reboot.h>
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
-// #define CHECK_VALUE(cond, strifeq) if (cond) printf("%s\n", strifeq);
 
 void printf(const char* fmt, ...);
 
@@ -63,9 +62,7 @@ int kernel_init(unsigned long magic, unsigned long addr) {
 
   /* input devices */
   printf("\nLoading drivers...");
-  if (!mouse_install) {
-    printf("Mouse initialization failed!\n");
-  }
+  if (mouse_install() == -1) printf("\nFailed to initialize mouse\n");
   keyboard_install();
 }
 
