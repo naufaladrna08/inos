@@ -35,3 +35,6 @@ os.img: boot.img kernel.elf
 
 clean:
 	rm -f $(obj-y) $(bin-y) kernel.elf os.img
+
+run: boot.bin
+	qemu-system-i386 -fda boot.bin

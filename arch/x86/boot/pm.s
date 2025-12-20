@@ -12,30 +12,20 @@ pm_start:
   mov ss, ax
 
   # Set up stack pointer
-  mov esp, 0x90000
-  
-  # Write 'P' to confirm segments are set
-  mov byte ptr [0xB8004], 'P'
-  mov byte ptr [0xB8005], 0x0A  # Green
-  
-  # Clear screen
-  // mov edi, 0xB8002    # Start after our debug char
-  // mov ecx, 1999       # 80*25 - 1 characters
-  // mov ax, 0x0F20      # White on black space
-  // rep stosw
+  mov esp, 0x9F000
 
   # Clear BSS section (if needed)
-  mov edi, offset __bss_start
-  mov ecx, offset __bss_end
-  sub ecx, edi
-  xor eax, eax
-  rep stosb
+  // mov edi, offset __bss_start
+  // mov ecx, offset __bss_end
+  // sub ecx, edi
+  // xor eax, eax
+  // rep stosb
 
   # Call the C kernel entry point
   # extern void kernel_init(unsigned long magic, unsigned long addr)
-  push 0              # addr parameter (no multiboot info)
-  push 0              # magic parameter (we're not multiboot)
-  call main
+  // push 0              # addr parameter (no multiboot info)
+  // push 0              # magic parameter (we're not multiboot)
+  // call main
   
   # If kernel returns, halt
   cli
