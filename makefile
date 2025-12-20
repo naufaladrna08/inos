@@ -1,9 +1,10 @@
 CC=gcc
-AS = nasm
+# AS = nasm
+AS = $(HOME)/opt/cross/bin/i686-elf-as
 LD = $(HOME)/opt/cross/bin/i686-elf-ld
 OD = $(HOME)/opt/cross/bin/i686-elf-objdump
 
-CCFLAGS=-I kernel/include -fno-pie -ffreestanding -m16
+CCFLAGS=-Ikernel/include -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostdlib -O0 -fno-pic -fno-pie -no-pie
 ASFLAGS=--32
 
 OBJECTS=boot/grub/boot.o kernel/io.o kernel/string.o kernel/tty.o kernel/cpu/gdt.o \
@@ -28,34 +29,34 @@ runiso: isoimage.iso
 	(killall VirtualBox) || true
 	VirtualBox --startvm kernel
 
-
-boot.bin: boot/nasm/boot.asm
-	$(AS) boot/nasm/boot.asm -f bin -o boot.bin
+boot.o: boot/boot.s
+	$(AS) --32 -c boot/boot.s -o boot.o
 	
-setup.o: boot/nasm/setup.asm
-	nasm boot/nasm/setup.asm -f elf -o setup.o
+setup.o: boot/setup.s
+	$(AS) --32 -c boot/setup.s -o setup.o
 
-main.o: boot/nasm/main.c
-	$(CC) -c boot/nasm/main.c -o main.o $(CCFLAGS)
+boot.bin: boot.o
+	$(LD) -m elf_i386 -Ttext 0x7C00 --oformat binary boot.o -o boot.bin
 
-setup.bin: setup.o main.o
-	$(LD) -m elf_i386 -T linker/link.ld -o setup.elf setup.o main.o
+setup.elf: setup.o boot/main.o boot/tty.o
+	$(LD) $(LDFLAGS) -Tlinker/link.ld $^ -o setup.elf
+
+
+check-symbols: setup.elf
+	nm setup.elf | grep -E '(main|_start)'
+	objdump -d setup.elf | grep -A 10 '<main>'
+
+setup.bin: setup.elf
 	objcopy -O binary setup.elf setup.bin
-	rm setup.elf
 
-# Test only boot.bin
-run: boot.bin
-	dd if=boot.bin of=disk.img bs=512 count=1 conv=notrunc
-	qemu-system-i386 -fda disk.img
-
-# Now test with setup.bin
 os.img: boot.bin setup.bin
 	dd if=/dev/zero of=os.img bs=512 count=2880
 	dd if=boot.bin of=os.img bs=512 count=1 conv=notrunc
 	dd if=setup.bin of=os.img bs=512 seek=1 conv=notrunc
 
-runos: os.img
-	qemu-system-i386 -fda os.img
+run: os.img
+# 	qemu-system-i386 -fda os.img
+	qemu-system-i386 -drive format=raw,file=os.img -d cpu_reset -no-reboot
 
 clean:
-	rm -f *.o *.bin disk.img isoimage.iso
+	rm -f *.o *.bin disk.img isoimage.iso os.img

@@ -36,3 +36,9 @@ void outl(u32 _port, u32 _data) {
 	__asm__("mov eax, %0" : : "g" (_data));
 	__asm__("out dx, ax");
 }
+
+void outsw(u16 _port, u16 *_data, u32 _count) {
+	__asm__("mov dx, %0" : : "g" (_port));
+	__asm__("mov ecx, %0" : : "g" (_count));
+	__asm__("rep outsw" : : "S" (_data), "c" (_count));
+}

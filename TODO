@@ -1,9 +1,0 @@
-
-
-Rencana:
-	Paling tidak, inos hrus punya implementasi filesystem ext2.
-
-Yang harus dilakukan:
-	Membuat managemen driver
-	Membuat driver ATA
-	Membuat filesystem ext2

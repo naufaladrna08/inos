@@ -16,6 +16,8 @@ typedef unsigned int u32;
 typedef long s64;
 typedef unsigned long u64;
 
+typedef unsigned int size_t;
+
 /* 
 	Boolean (by default, we don't have bool in gcc. 
 	must include stdbool) 
