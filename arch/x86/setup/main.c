@@ -10,6 +10,8 @@ void write_string( int colour, const char *string ) {
 
 int main(void) {
   write_string(0x0F, "Hello Fines hi 1gh dt");
-  
+  // Setup IDT
+  // Setup Paging
+  // Run kernel main
   for (;;);
 }
