@@ -40,7 +40,7 @@ boot_start:
   mov ax, 0x0000
   mov es, ax
   mov ah, 0x02         # BIOS read sector function
-  mov al, 4            # Number of sectors to read (4 sectors = 2048 bytes)
+  mov al, 8            # Number of sectors to read (8 sectors = 4096 bytes)
   mov ch, 0            # Cylinder 0
   mov cl, 2            # Sector 2 (setup sector)
   mov dh, 0            # Head 0

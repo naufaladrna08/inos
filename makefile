@@ -20,7 +20,7 @@ include arch/$(ARCH)/makefile
 # include kernel/Makefile
 
 CFLAGS := -ffreestanding -fno-builtin -nostdlib -m32 \
-          -fno-stack-protector -O0 -no-pie \
+          -fno-stack-protector -O0 -fno-pie \
           $(addprefix -I,$(inc-y))
 
 all: boot.img kernel.elf os.img

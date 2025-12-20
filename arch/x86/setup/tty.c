@@ -1,15 +1,15 @@
 #include <tty.h>
+#define TERMINAL_COLOR 0x07
 static int x, y;
 static const unsigned char rows, cols, depth;
 static const unsigned char rows = 80, cols = 25, depth = 2;
-static unsigned char tty_color;
 
 void tty_clearline(unsigned char from, unsigned char to) {
 	unsigned short i = rows * from * depth;
 	char* vidmem = (char*) 0xb8000;
 	for (i; i < (rows * to * depth); i++) {
 		vidmem[(i / 2)*2] = 0;
-		vidmem[(i / 2)*2 + 1] = tty_color;
+		vidmem[(i / 2)*2 + 1] = TERMINAL_COLOR;
 	}
 }
 
@@ -69,7 +69,7 @@ void tty_putch(char c) {
 
 		default:
 			vidmem[((y * rows + x))*depth] = c;
-			vidmem[((y * rows + x))*depth+1] = tty_color;
+			vidmem[((y * rows + x))*depth+1] = TERMINAL_COLOR;
 			x++;
 	}
 
