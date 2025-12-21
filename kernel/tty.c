@@ -32,16 +32,16 @@
 
 #include <tty.h>
 static int x, y;
-static const u8 rows, cols, depth;
-static const u8 rows = 80, cols = 25, depth = 2;
-static u8 tty_color;
+static const uint8_t rows, cols, depth;
+static const uint8_t rows = 80, cols = 25, depth = 2;
+#define TERMINAL_COLOR 0x07
 
-void tty_clearline(u8 from, u8 to) {
-	u16 i = rows * from * depth;
+void tty_clearline(uint8_t from, uint8_t to) {
+	uint16_t i = rows * from * depth;
 	char* vidmem = (char*) 0xb8000;
 	for (i; i < (rows * to * depth); i++) {
 		vidmem[(i / 2)*2] = 0;
-		vidmem[(i / 2)*2 + 1] = tty_color;
+		vidmem[(i / 2)*2 + 1] = TERMINAL_COLOR;
 	}
 }
 
@@ -51,9 +51,9 @@ void tty_clean() {
 	tty_refresh();
 }
 
-void tty_scroll(u8 lines) {
+void tty_scroll(uint8_t lines) {
 	char* vidmem = (char*) 0xb8000;
-	u16 i = 0;
+	uint16_t i = 0;
 	tty_clearline(0, lines-1);
 	for (i; i < rows * (cols-1) * 2; i++) {
 		vidmem[i] = vidmem[i + rows * 2 * lines ];
@@ -101,7 +101,7 @@ void tty_putch(char c) {
 
 		default:
 			vidmem[((y * rows + x))*depth] = c;
-			vidmem[((y * rows + x))*depth+1] = tty_color;
+			vidmem[((y * rows + x))*depth+1] = TERMINAL_COLOR;
 			x++;
 	}
 
@@ -115,24 +115,23 @@ void tty_putch(char c) {
 }
 
 void tty_write(char* str) {
-	u8 len = strlen(str);
-	for (u16 i = 0; i < len; i++) {
-		tty_putch(str[i]);
+	while (*str) {
+		tty_putch(*str++);	
 	}
 }
 
-void tty_init(int _x, int _y, u8 _color) {
+void tty_init(int _x, int _y, uint8_t _color) {
 	tty_write("Initializing Teletype Writer... ");
 
 	x = _x;
 	y = _y;
-	tty_color = _color;
+
 
 	tty_write("[ OK ]\n");
 	tty_clean();
 }
 
-void tty_cursor(u8 c_start, u8 c_end) {
+void tty_cursor(uint8_t c_start, uint8_t c_end) {
 	outb(0x3d4, 0x0a);
 	outb(0x3d5, (inb(0x3d5) & 0xc0) | c_start);
 	outb(0x3d4, 0x0b);
@@ -161,11 +160,11 @@ void tty_printf(const char* fmt, ...) {
 			switch (c) {
 				case 'd':
 				case 'u':
-				case 'x':
-					itoa(buf, c, *((int *) arg++));
-					p = buf;
-					goto string;
-					break;
+				// case 'x':
+				// 	itoa(buf, c, *((int *) arg++));
+				// 	p = buf;
+				// 	goto string;
+				// 	break;
 
 				case 's':
 					p = *arg++;

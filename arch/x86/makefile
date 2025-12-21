@@ -18,5 +18,5 @@ setup: $(setup_OBJS)
 boot: bootTemp setup
 	cat bootTemp setup > boot
 	
-bin-y += boot
-obj-y += $(boot_OBJS)
+bin-y += boot bootTemp setup
+obj-y += $(boot_OBJS) $(setup_OBJS)

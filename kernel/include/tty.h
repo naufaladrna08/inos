@@ -2,7 +2,6 @@
 #define TTY_H
 #include <types.h>
 #include <io.h>
-#include <string.h>
 
 void tty_clearline(u8 from, u8 to);
 void tty_clean();

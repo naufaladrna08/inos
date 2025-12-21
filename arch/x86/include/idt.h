@@ -1,6 +1,9 @@
 #ifndef IDT_H
 #define IDT_H
 #include <types.h>
+#include <tty.h>
+#include <isr.h>
+#include <irq.h>
 
 struct idt_entry {
   uint16_t offset_low;

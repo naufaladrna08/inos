@@ -40,14 +40,37 @@ boot_start:
   mov ax, 0x0000
   mov es, ax
   mov ah, 0x02         # BIOS read sector function
-  mov al, 8            # Number of sectors to read (8 sectors = 4096 bytes)
+  mov al, 0x09         # Number of sectors to read for setup (9 sectors = ~4.5KB)
   mov ch, 0            # Cylinder 0
   mov cl, 2            # Sector 2 (setup sector)
   mov dh, 0            # Head 0
-  mov bx, 0x9000       # Buffer to load the sector temporary
+  mov bx, 0x9000       # Buffer to load setup code
   mov dl, [boot_drive] # Boot drive
   int 0x13
   jc disk_error
+
+  # Read kernel from disk to 0x010000 (64KB mark - safe location)
+  mov ax, 0x1000       # Segment for 0x010000
+  mov es, ax
+  mov ah, 0x02         # BIOS read sector function
+  mov al, 0x09         # Number of sectors to read for kernel (9 sectors = ~4.5KB)
+  mov ch, 0            # Cylinder 0
+  mov cl, 11           # Sector 11 (boot=1 sector + setup=9 sectors = 10, next is 11)
+  mov dh, 0            # Head 0
+  mov bx, 0x0000       # Offset 0 (ES:BX = 0x1000:0x0000 = 0x010000)
+  mov dl, [boot_drive] # Boot drive
+  int 0x13
+  jc disk_error
+  
+  # Debug: Show we loaded kernel successfully with 'K'
+  push ax
+  mov ah, 0x0E
+  mov al, 'K'
+  int 0x10
+  pop ax
+
+  mov ax, 0x0000
+  mov es, ax
 
   # Enable A20 so we can access memory >1MB (in 8086)
   # We'll use fast method because I don't care backward-compatible. Most newer 

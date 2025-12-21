@@ -17,7 +17,7 @@ export CC AS LD OBJCOPY ARCH obj-y inc-y bin-y
 include arch/$(ARCH)/makefile
 
 # kernel build
-# include kernel/Makefile
+include kernel/makefile
 
 CFLAGS := -ffreestanding -fno-builtin -nostdlib -m32 \
           -fno-stack-protector -O0 -fno-pie \
@@ -25,16 +25,15 @@ CFLAGS := -ffreestanding -fno-builtin -nostdlib -m32 \
 
 all: boot.img kernel.elf os.img
 
-kernel.elf: $(obj-y)
-	$(LD) -T arch/$(ARCH)/linker/link.ld -o $@ $^
-
-os.img: boot.img kernel.elf
-	dd if=/dev/zero of=$@ bs=512 count=2880
-	dd if=boot.img of=$@ conv=notrunc
-	dd if=kernel.elf of=$@ seek=1 conv=notrunc
+inos: boot kern
+	# Pad boot to sector boundary (512 bytes)
+	cp boot boot.padded
+	truncate -s %512 boot.padded
+	cat boot.padded kern > inos
+	rm boot.padded
 
 clean:
-	rm -f $(obj-y) $(bin-y) kernel.elf os.img
+	rm -f $(obj-y) $(bin-y)
 
-run: boot.bin
-	qemu-system-i386 -fda boot.bin
+run: inos
+	qemu-system-i386 -fda inos
